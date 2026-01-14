@@ -1,24 +1,15 @@
-import configuration
-import requests
+import sender_stand_request
 import data
 
-# Создание заказа
-def post_new_order(order_body):
-	return requests.post(configuration.URL_SERVICE + configuration.CREATE_ORDER_PATH,
-	                     json = order_body,
-	                     headers = data.headers)
-
-# Получение заказа по номеру трекера
-def get_order_from_track(track):
-	return requests.get(configuration.URL_SERVICE + configuration.FIND_ORDER_FROM_TRACK_PATH + str(track),
-	                    headers = data.headers)
-
-# Выполнить запрос на получения заказа по треку заказа.
-def assertion_code_200():
-	response_pno = post_new_order(data.order_body)
-	track = response_pno.json()["track"]
-	return get_order_from_track(track).status_code
-
-# Проверить, что код ответа равен 200.
-def test_get_order_from_track_code_200():
-	assert assertion_code_200() == data.status_code_200
+def test_get_order_info_by_track_success_response():
+    # 1. Выполняем запрос на создание заказа
+    response = sender_stand_request.post_new_order(data.order_body)
+    
+    # 2. Сохраняем номер трека заказа
+    track_id = response.json()["track"]
+    
+    # 3. Выполняем запрос на получение заказа по треку заказа
+    get_order_response = sender_stand_request.get_order_by_track(track_id)
+    
+    # 4. Проверяем, что код ответа равен 200
+    assert get_order_response.status_code == 200
